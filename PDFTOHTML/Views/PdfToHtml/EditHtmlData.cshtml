@@ -681,7 +681,7 @@
         $('#btnSaveDetails').unbind().click(function () {
 
             var requestdata = {
-                html: codemirror.getValue(),
+                html: $("#preview").html(),
                 filename:'@ViewBag.ConvertedFormatFile'
             };
 
@@ -713,31 +713,32 @@
             } else if (document.selection) {
                 range = document.selection.createRange();
                 sel = range.text;
-                }
+            }
 
-            // var getselectedtext = codemirror.getSelection();
-            // if (getselectedtext == undefined || getselectedtext == null || getselectedtext.length <= 0) {
-                // return false;
-            // }
-            debugger
             $("#txtanchtext").val(sel);
-            $("#txtanchtext").attr("selectionSet", sel);
             if ($("#txtanchtext").val() != "") {
+                updateTexttoAnchor();
                 $("#anchortagpopup").modal('show');
             }
         });
 
         function replaceSelectedText(replacementText) {
-            debugger
             if (sel) {
                 if (sel.rangeCount) {
                     range = sel.getRangeAt(0);
                     range.deleteContents();
-                    range.insertNode(document.createTextNode(replacementText));
+                    const el = document.createElement("div");
+                    el.innerHTML = replacementText;
+                    let frag = document.createDocumentFragment(),
+                        node,
+                        lastNode;
+                    while ((node = el.firstChild)) {
+                        lastNode = frag.appendChild(node);
+                    }
+                    range.insertNode(frag);
                 }
             } else if (range) {
-                // range = document.selection.createRange();
-                range.text = replacementText;
+                range.innerHTML = replacementText;
             }
         }
 
@@ -747,16 +748,36 @@
             if (anchlink == null || anchlink == undefined || anchlink.length <= 0) {
                 anchlink = '#';
             }
+            $("#addTag").attr('href', anchlink);
+            $("#addTag").removeAttr('id');
+            $('#txtanchlink').val("");
+            $("#txtanchtext").val("");
+            $("#anchortagpopup").modal('hide');
+        });
+
+        $("#btnCancelAnchortag").unbind().click(function () {
+            $('#txtanchlink').val("");
+            $("#txtanchtext").val("");
+            $('#addTag').contents().unwrap();
+            $("#addTag").removeAttr('id');
+            $("#anchortagpopup").modal('hide');
+        });
+
+        function updateTexttoAnchor() {
+            var anchlink = $('#txtanchlink').val();
+            if (anchlink == null || anchlink == undefined || anchlink.length <= 0) {
+                anchlink = '#';
+            }
 
             var anchortagtext = $("#txtanchtext").val();
 
             var aTag = document.createElement('a');
+            aTag.id = "addTag";
             aTag.setAttribute('href', anchlink);
             aTag.innerText = anchortagtext;
 
             replaceSelectedText(aTag.outerHTML);
-            // codemirror.replaceSelection(aTag.outerHTML);
-        });
+        }
     </script>
 }
 
@@ -780,7 +801,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" id="btnCancelAnchortag">Close</button>
                 <button type="button" class="btn btn-primary" id="btnsaveAnchortag">Add</button>
             </div>
         </div>
