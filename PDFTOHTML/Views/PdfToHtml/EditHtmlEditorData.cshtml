@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "EditHtmlEditorData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Html View In Editor</h2>
+
+<div class="row" id="divTextEditor">
+    <div class="col-md-12">
+        <textarea id="txtHtmlData">@ViewBag.ConvertedHtml</textarea>
+    </div>
+    @*<br />
+    <br />
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <button class="btn btn-primary" id="btnSkip">Skip</button>
+            <button class="btn btn-primary" id="btnSaveDetails">Save</button>
+        </div>
+        <div class="col-md-4"></div>
+    </div>*@
+</div>
+
+
+@section scripts {
+    <script src="http://cdn.ckeditor.com/4.16.0/full/ckeditor.js"></script>
+
+    <script type="text/javascript">
+         CKEDITOR.replace('txtHtmlData',{
+            height: 500
+        });
+
+        @*$('#btnSaveDetails').unbind().click(function () {
+
+            var requestdata = {
+                html: CKEDITOR.instances.txtHtmlData.getData(),
+                filename:'@ViewBag.ConvertedFormatFile'
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/PdfToHtml/SaveEditedHtml",
+                content: "application/json; charset=utf-8",
+                dataType: "json",
+                data: requestdata,
+                success: function (data) {
+                    window.location.href = "/PdfToHtml/successfullyconverted?name=" + '@ViewBag.ConvertedFormatFile';
+                },
+                error: function () {
+                }
+            });
+        });
+
+        $('#btnSkip').unbind().click(function () {
+            window.location.href = "/PdfToHtml/successfullyconverted?name=" + '@ViewBag.ConvertedFormatFile';
+        });*@
+    </script>
+}
