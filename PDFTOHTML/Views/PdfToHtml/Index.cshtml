@@ -1,4 +1,5 @@
-﻿
+﻿@model List<PDFTOHTML.tblBrief>
+
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -14,8 +15,9 @@
     <div class="row">
         @if (ViewBag.generatedfile != null)
         {
+            @*Click here<a target="_blank" href="/PdfToHtml/EditHtmlData?filename=@ViewBag.generatedfile">@ViewBag.generatedfile</a>*@
             <div class="col-md-12">
-                <span class="text-success">@ViewBag.Message Click here <a target="_blank" href="/PdfToHtml/EditHtmlData?filename=@ViewBag.generatedfile">@ViewBag.generatedfile</a></span>
+                <span class="text-success">@ViewBag.Message </span>
             </div>
         }
         else
@@ -37,5 +39,35 @@
             <input type="submit" class="btn btn-primary" value="Upload" />
         </div>
     </div>
+    <br />
+    <br />
+
+    <table class="table table-bordered table-striped table-hover" style="width:100%;">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                if (Model.Count() > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><a href="/PdfToHtml/EditHtmlData?id=@item.Id" target="_blank">@(item.FileName + ".html")</a></td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center">No record found.</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 }
- 

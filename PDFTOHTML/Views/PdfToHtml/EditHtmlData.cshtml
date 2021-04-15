@@ -32,10 +32,10 @@
         }
 
     #preview {
-        position: absolute;
-        left: 50%;
+        position: relative;
+        left: 25%;
         top: 0px;
-        width: 50%;
+        width: 70%;
         height: 500px;
         padding: 2%;
     }
@@ -44,6 +44,7 @@
         position: absolute;
         width: 50%;
         height: 500px;
+        display: none
     }
 
         #editor .CodeMirror {
@@ -679,7 +680,7 @@
 
 
         $('#btnSaveDetails').unbind().click(function () {
-
+             
             var requestdata = {
                 html: $("#preview").html(),
                 filename:'@ViewBag.ConvertedFormatFile'
@@ -708,7 +709,7 @@
 
             if (window.getSelection) {
                 sel = window.getSelection();
-                } else if (document.getSelection) {
+            } else if (document.getSelection) {
                 sel = document.getSelection();
             } else if (document.selection) {
                 range = document.selection.createRange();
@@ -743,19 +744,64 @@
         }
 
         $("#btnsaveAnchortag").unbind().click(function () {
-            var anchlink = $('#txtanchlink').val();
 
-            if (anchlink == null || anchlink == undefined || anchlink.length <= 0) {
-                anchlink = '#';
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+
+                var fileUpload = $("#txtuploadedfile").get(0);
+                var files = fileUpload.files;
+
+                if (files.length <= 0) {
+                    alert("Please select file");
+                    return false;
+                }
+
+                // Create FormData object
+                var fileData = new FormData();
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(files[i].name, files[i]);
+                }
+
+                // Adding one more key to FormData object
+                fileData.append('filepath', '@ViewBag.ConvertedFilePath');
+                fileData.append('FileId', '@ViewBag.FileId');
+
+                $.ajax({
+                    url: '/PdfToHtml/FileUploadWithAnch',
+                    type: "POST",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+
+                        if (result.success) {
+
+                            var anchlink = window.location.origin + result.filename;
+
+                            $("#addTag").attr('href', anchlink);
+                            $("#addTag").attr('target', "_blank");
+                            $("#addTag").removeAttr('id');
+                            $('#txtanchlink').val("");
+                            $("#txtanchtext").val("");
+                            $("#anchortagpopup").modal('hide');
+                            //alert(result.message);
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
             }
-            $("#addTag").attr('href', anchlink);
-            $("#addTag").removeAttr('id');
-            $('#txtanchlink').val("");
-            $("#txtanchtext").val("");
-            $("#anchortagpopup").modal('hide');
+
         });
 
-        $("#btnCancelAnchortag").unbind().click(function () {
+        $(".btnCancelAnchortag").unbind().click(function () {
             $('#txtanchlink').val("");
             $("#txtanchtext").val("");
             $('#addTag').contents().unwrap();
@@ -781,12 +827,12 @@
     </script>
 }
 
-<div class="modal fade" id="anchortagpopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="anchortagpopup" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Add Link</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close btnCancelAnchortag">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -795,13 +841,17 @@
                     <label>Text</label>
                     <input type="text" id="txtanchtext" class="form-control" />
                 </div>
+                @*<div class="form-group">
+                        <label>Link</label>
+                        <input type="text" id="txtanchlink" class="form-control" />
+                    </div>*@
                 <div class="form-group">
                     <label>Link</label>
-                    <input type="text" id="txtanchlink" class="form-control" />
+                    <input type="file" id="txtuploadedfile" class="form-control" />
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="btnCancelAnchortag">Close</button>
+                <button type="button" class="btn btn-secondary btnCancelAnchortag" id="btnCancelAnchortag">Close</button>
                 <button type="button" class="btn btn-primary" id="btnsaveAnchortag">Add</button>
             </div>
         </div>
