@@ -117,7 +117,7 @@
         <div class="col-md-4 text-center">
             <button class="btn btn-primary btn-sm" id="btnSkip">Skip</button>
             <button class="btn btn-primary btn-sm" id="btnSaveDetails">Save</button>
-            <button class="btn btn-primary btn-sm" id="btnAddAnchorLink">Add Link</button>
+            <button class="btn btn-primary btn-sm" id="btnAddAnchorLink">Add File</button>
         </div>
         <div class="col-md-4"></div>
     </div>
@@ -133,7 +133,47 @@
 </div>
 
 <div id="pdfhtmlcode" style="display:none">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <style>
+        .custom-modal-dialog {
+            width: 80% !important;
+        }
+    </style>
+
     @Html.Raw(ViewBag.ConvertedHtml)
+
+    <div class="modal fade" id="pdf-viewer-custom-Popup" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">PDF Viewer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        X
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="frmPDFViewer" height="750px" width="100%"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script type="text/javascript">
+        $(document).on('click', '.pdf-viewer-popup', function () {
+            var getfiledata = $(this).data("fileurl");
+
+            if (getfiledata != null && getfiledata != undefined) {
+                $("#frmPDFViewer").removeAttr("src");
+                $("#frmPDFViewer").attr("src", getfiledata);
+                $("#pdf-viewer-custom-Popup").modal('show');
+            }
+
+        });
+    </script>
 </div>
 
 @section scripts {
@@ -680,7 +720,7 @@
 
 
         $('#btnSaveDetails').unbind().click(function () {
-             
+
             var requestdata = {
                 html: $("#preview").html(),
                 filename:'@ViewBag.ConvertedFormatFile'
@@ -780,8 +820,9 @@
 
                             var anchlink = window.location.origin + result.filename;
 
-                            $("#addTag").attr('href', anchlink);
-                            $("#addTag").attr('target', "_blank");
+                            $("#addTag").attr('href', 'javascript:void(0)');
+                            $("#addTag").attr('data-fileurl', anchlink);
+                            $("#addTag").attr('class', 'pdf-viewer-popup');
                             $("#addTag").removeAttr('id');
                             $('#txtanchlink').val("");
                             $("#txtanchtext").val("");
@@ -831,7 +872,7 @@
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Link</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add File</h5>
                 <button type="button" class="close btnCancelAnchortag">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -846,7 +887,7 @@
                         <input type="text" id="txtanchlink" class="form-control" />
                     </div>*@
                 <div class="form-group">
-                    <label>Link</label>
+                    <label>File</label>
                     <input type="file" id="txtuploadedfile" class="form-control" />
                 </div>
             </div>
